@@ -1,4 +1,5 @@
-from typing import Optional, TypeVar, Type, Union, List
+from __future__ import annotations
+from typing import Optional, TypeVar, Iterable
 
 
 T = TypeVar("T")
@@ -11,14 +12,12 @@ class Queue:
      Each item is added to the end of the Queue and items are
      retrieved in reverse order. Meaning that the first item
      added will be get before the second item.
-
-     Queue is extended by Registry, which is basically a Queue of Queue's
-     that orders by priority.
+ 
      """
 
-    def __init__(self, unique: bool = False):
+    def __init__(self, default: Optional[Iterable] = None, unique: Optional[bool] = False):
         self.__unique = unique
-        self.__collection: list = list()
+        self.__collection: list = list(default) if default else list()
 
     def push(self, item: T) -> None:
         """Put an item at the end of the Queue"""
@@ -43,10 +42,10 @@ class Queue:
         except IndexError:
             return None                      # Empty List
 
-    def flush(self) -> List[T]:
-        """Clear the Queue and return a list of it's items"""
+    def flush(self) -> Queue:
+        """Clear the Queue and return a new Queue of it's items"""
 
-        return [self.pull() for _ in range(len(self))]
+        return Queue([_ for _ in self])
 
     def __str__(self):
         return str("< {} >".format(" | ".join([str(x) for x in self.__collection]) if len(self) else "Empty Q"))
@@ -71,11 +70,3 @@ class Queue:
 
     def __setitem__(self, key: str, value: T) -> None:
         raise NotImplementedError
-
-
-if __name__ == "__main__":
-    line = Queue(False)
-    line.push([3, 1])
-    line.push([1, 2, 3, 4, 5])
-    print(iter(line))
-    print(line)
