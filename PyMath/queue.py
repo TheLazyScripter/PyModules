@@ -17,28 +17,28 @@ class Queue:
 
     def __init__(self, default: Optional[Iterable] = None, unique: Optional[bool] = False):
         self.__unique = unique
-        self.__collection: list = list(default) if default else list()
+        self._collection: list = list(default) if default else list()
 
     def push(self, item: T) -> None:
         """Put an item at the end of the Queue"""
 
         if isinstance(item, (list, set, tuple)):
             if not self.__unique:
-                self.__collection.extend(item)
+                self._collection.extend(item)
             else:
-                [self.__collection.append(item) for i in set(item) if i not in self.__collection]
+                [self._collection.append(item) for i in set(item) if i not in self._collection]
         else:
             if not self.__unique:
-                self.__collection.append(item)
+                self._collection.append(item)
             else:
-                if item not in self.__collection:
-                    self.__collection.append(item)
+                if item not in self._collection:
+                    self._collection.append(item)
 
     def pull(self) -> T:
         """Get the first item in the Queue if any"""
 
         try:
-            return self.__collection.pop(0)  # Pull first item
+            return self._collection.pop(0)  # Pull first item
         except IndexError:
             return None                      # Empty List
 
@@ -48,20 +48,20 @@ class Queue:
         return Queue([_ for _ in self])
 
     def __str__(self):
-        return str("< {} >".format(" | ".join([str(x) for x in self.__collection]) if len(self) else "Empty Q"))
+        return str("< {} >".format(" | ".join([str(x) for x in self._collection]) if len(self) else "Empty Q"))
     
     def __repr__(self):
-        return repr(self.__collection)
+        return repr(self._collection)
 
     def __len__(self):
-        return len(self.__collection)
+        return len(self._collection)
 
     def __iter__(self):
         self.__pos = 0
         return self
 
     def __next__(self):
-        if self.__pos < len(self.__collection):
+        if self.__pos < len(self._collection):
             return self.pull()
         raise StopIteration
 
