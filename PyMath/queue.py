@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import Optional, TypeVar, Iterable
+import time
+from threading import Thread
 
 
 T = TypeVar("T")
@@ -34,18 +36,35 @@ class Queue:
                 if item not in self._collection:
                     self._collection.append(item)
 
-    def pull(self) -> T:
+    def pull(self, blocking: Optional[bool] = False, timeout: Optional[int] = 0,
+             if_timeout_reached: Optional[type] = None, *args, **kwargs) -> T:
         """Get the first item in the Queue if any"""
+        result = [None]  # Set local result for modification inside inner and return later
 
-        try:
-            return self._collection.pop(0)  # Pull first item
-        except IndexError:
-            return None                      # Empty List
+        def b():
+            s = time.time()
+            while not self:
+                if timeout and time.time() - s > timeout:
+                    if if_timeout_reached:
+                        if_timeout_reached(args, kwargs)
+                    raise RuntimeError("Timeout Reached: ")
+                else:
+                    time.sleep(0.1)
+            result[0] = self._collection.pop(0)
+
+        t = Thread(target=b)
+        t.start()
+        if not blocking:
+            t.join()
+        return result[0] if result else None
 
     def flush(self) -> Queue:
         """Clear the Queue and return a new Queue of it's items"""
 
         return Queue([_ for _ in self])
+
+    def __bool__(self):
+        return len(self._collection) > 0
 
     def __str__(self):
         return str("< {} >".format(" | ".join([str(x) for x in self._collection]) if len(self) else "Empty Q"))
