@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from math import sin, cos, sqrt, pi, atan2
-from typing import Union, Type
+from typing import Union, TypeVar
+
+T = TypeVar("T")
 
 
 class Vector(object):
 
-    def __init__(self, *args: Type["PyMath.matrix.Matrix"]):
+    def __init__(self, *args: T):
         self._components = []
 
         for i in args:
@@ -22,11 +24,12 @@ class Vector(object):
 
         setattr(self, name, self._components[index])
 
+    @property
     def components(self) -> [any]:
         return self._components
 
     def mag(self) -> float:
-        return sqrt(sum(i ** 2 for i in self.components()))
+        return sqrt(sum(i ** 2 for i in self.components))
 
     def normalized(self) -> Vector:
         """
@@ -82,7 +85,7 @@ class Vector(object):
         """
         Get Components
         """
-        return repr(self.components())
+        return repr(self.components)
 
     def __len__(self) -> int:
         """
@@ -124,7 +127,7 @@ class Vector(object):
         Overload == to determine if 2 Vector3's are the same
         """
         if isinstance(other, Vector):
-            return self.components() == other.components()
+            return self.components == other.components
         elif isinstance(other, (int, float)):
             return self.mag() == other
 
@@ -361,5 +364,5 @@ def look_towards(vec1: Vector2, vec2: Vector2) -> float:
     """
 
     direction = vec1 - vec2
-    angle = atan2(*direction.components())
+    angle = atan2(*direction.components)
     return angle
